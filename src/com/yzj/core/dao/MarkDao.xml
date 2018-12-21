@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzj.core.dao.MarkDao">
+    <!--SQL片段  -->
+    <sql id="selectMarkListWhere">
+        <where>
+            <if test="room_id != null and room_id != ''">
+                room_id like "%"#{room_id}"%"
+            </if>
+            <if test="room_lou != null and room_lou != ''">
+                and room_lou = #{room_lou}
+            </if>
+            <if test="room_ceng != null and room_ceng != ''">
+                and room_ceng = #{room_ceng}
+            </if>
+        </where>
+    </sql>
+    <!-- 查询成绩列表  -->
+    <select id="selectMarkList" parameterType="mark"
+            resultType="mark">
+        select * from mark where mk_room_id in ( select room_id from room
+        <include refid="selectMarkListWhere"/>)
+        <if test="mk_per != null and mk_per != ''">
+            and mk_per = #{mk_per}
+        </if>
+        order by mk_per desc, mk_room_id asc
+        <!-- 执行分页查询 -->
+        <if test="start != null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+
+    <!-- 查询指定范围内成绩总数 -->
+    <select id="selectMarkListCount" parameterType="mark"
+            resultType="Integer">
+        select count(*) from mark where mk_room_id
+        in (
+        select room_id from room
+        <include refid="selectMarkListWhere"/>
+        )
+        <if test="mk_per != null">
+            and mk_per = #{mk_per}
+        </if>
+    </select>
+
+    <!-- 作成绩是否已存在判断 -->
+    <select id="createMarkCheck" parameterType="mark"
+            resultType="Integer">
+        select count(*) from mark where mk_room_id = #{mk_room_id} and mk_per = #{mk_per}
+    </select>
+
+    <!-- 添加成绩 -->
+    <insert id="createMark" parameterType="mark">
+	    insert into mark(
+	                     mk_per,
+	                     mk_room_id,
+	                     mk_grade,
+	                     mk_user_id,
+	                     mk_case,
+	                     mk_state
+	             )
+	             values(#{mk_per},
+	                    #{mk_room_id},
+	                    #{mk_grade},
+	                    #{mk_user_id},
+	                    #{mk_case},
+	                    '1'
+	            )
+	</insert>
+
+    <!-- 根据id获取寝室成绩信息 -->
+    <select id="getMarkById" parameterType="Integer"
+            resultType="mark">
+	    select * from mark where mk_id = #{id}
+	</select>
+    <!-- 修改成绩 -->
+    <update id="updateMark" parameterType="mark">
+        update mark
+        <set>
+
+            <if test="mk_grade!=null">
+                mk_grade=#{mk_grade},
+            </if>
+            <if test="mk_case!=null">
+                mk_case=#{mk_case}
+            </if>
+
+        </set>
+        where mk_id=#{mk_id}
+    </update>
+    <!-- 删除成绩 -->
+    <delete id="deleteMark" parameterType="Integer">
+	    delete from mark where mk_id=#{id}
+	</delete>
+
+    <!-- 查找对应字段数据 -->
+    <select id="selectBaseDict" resultType="String" statementType="STATEMENT">
+      select distinct ${field} from ${table}
+  </select>
+    <select id="getUserCheckRoom" resultType="java.lang.String">
+        select user_checkroom from sys_user where user_id = #{user_id};
+    </select>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzj.core.dao.NoticeDao">
+
+
+    <!-- 查询通知列表 -->
+    <select id="selectMarkList" resultType="com.yzj.core.po.Notice">
+        select * from notice
+    </select>
+
+    <!-- 查询通知列表总数 -->
+    <select id="selectMarkListCount" resultType="java.lang.Integer">
+        select count(*) from notice
+    </select>
+
+    <!-- 通过id获取通知内容 -->
+    <select id="getNoticeById" resultType="com.yzj.core.po.Notice">
+        select * from notice where notice_id = #{id};
+    </select>
+
+    <!-- 发布通知 -->
+    <insert id="createNotice" parameterType="notice">
+        insert into notice(
+	                     notice_text,
+	                     notice_date,
+	                     notice_state
+	             )
+	             values( #{notice_text},
+	                     #{notice_date},
+	                    '1'
+	            )
+    </insert>
+
+    <!-- 修改通知 -->
+    <update id="updateNotice">
+        update notice
+        <set>
+            notice_text = #{notice_text}
+        </set>
+        where notice_id = #{notice_id}
+    </update>
+    <!-- 修改通知状态 -->
+    <update id="updateState">
+        update notice
+        <set>
+            notice_state = '0'
+        </set>
+        where notice_id = #{id}
+    </update>
+
+</mapper>

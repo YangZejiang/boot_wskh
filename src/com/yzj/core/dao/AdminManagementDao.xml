@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzj.core.dao.AdminManagementDao">
+
+    <!-- 查询用户列表 -->
+    <select id="selectAdminList" resultType="com.yzj.core.po.User" parameterType="user">
+        select * from sys_user where user_state = 1
+        <if test="user_code != null and user_code != ''">
+            and user_code= #{user_code}
+        </if>
+
+        <!-- 执行分页查询 -->
+        <if test="start != null and rows != null">
+            limit #{start},#{rows}
+        </if>
+
+    </select>
+
+    <!-- 查询指定范围内用户总数 -->
+    <select id="selectAdminListCount" resultType="java.lang.Integer" parameterType="user">
+        select count(*) from sys_user
+        <if test="user_code != null">
+            where user_code = #{user_code}
+        </if>
+    </select>
+
+    <!-- 通过id查用户 -->
+    <select id="getAdminById" resultType="com.yzj.core.po.User" parameterType="Integer">
+           select * from sys_user where user_id = #{id}
+    </select>
+
+    <!-- 表单内查询寝室 -->
+    <select id="getRoomList" resultType="com.yzj.core.po.AdminManagement" parameterType="String">
+        select room_id,room_user_id from room
+        <where>
+            <if test="keyLou != null and keyLou != ''">
+                room_lou = #{keyLou}
+            </if>
+            <if test="keyCeng != null and keyCeng != ''">
+                and room_ceng = #{keyCeng}
+            </if>
+            <if test="keyId != null and keyId != ''">
+                and room_id = #{keyId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 修改用户表 -->
+    <update id="updateAdmin" parameterType="user">
+        update sys_user
+        <set>
+            <if test="user_code != null">
+                user_code = #{user_code},
+            </if>
+            <if test="user_name != null">
+                user_name = #{user_name},
+            </if>
+            <if test="user_checkroom != null">
+                user_checkroom = #{user_checkroom},
+            </if>
+        </set>
+        where user_id = #{user_id}
+    </update>
+
+    <!-- 修改寝室表 -->
+    <update id="updateRoom" parameterType="String">
+        update room
+        <set>
+            <if test="userid != null">
+                room_user_id = #{userid},
+            </if>
+        </set>
+        where room_id in (${roomidlist})
+    </update>
+
+    <!-- 作寝室表删除修改 -->
+    <update id="deleteroom" parameterType="String">
+        update room
+        <set>
+            room_user_id = null,
+        </set>
+        where room_id in (${del_roomlist})
+    </update>
+</mapper>
